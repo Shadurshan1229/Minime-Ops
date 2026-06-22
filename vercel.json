@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd minime-ops && npm install && npm run build",
+  "outputDirectory": "minime-ops/dist",
+  "installCommand": "echo skip"
+}
