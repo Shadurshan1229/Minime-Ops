@@ -1,0 +1,53 @@
+:root {
+  /* Surfaces */
+  --canvas:      #090909;
+  --s1:          #141414;
+  --s2:          #1c1c1c;
+  --hairline:    #262626;
+  --hairline-s:  #1a1a1a;
+
+  /* Ink */
+  --ink:         #ffffff;
+  --ink-m:       #999999;
+
+  /* Brand */
+  --red:         #F04E3E;
+  --red-glow:    rgba(240, 78, 62, 0.15);
+  --red-ring:    rgba(240, 78, 62, 0.25);
+  --red-dim:     rgba(240, 78, 62, 0.08);
+
+  /* Status tints */
+  --status-pending-bg:   #1E1A10;
+  --status-pending-text: #C9A05A;
+  --status-printing-bg:  #0E1A14;
+  --status-printing-text:#6DBF9A;
+  --status-ready-bg:     #0E1520;
+  --status-ready-text:   #6AA8D4;
+  --status-custom-bg:    #1A140E;
+  --status-custom-text:  #C89060;
+
+  /* Radius */
+  --r-xs:   4px;
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-lg:   15px;
+  --r-xl:   20px;
+  --r-xxl:  30px;
+  --r-pill: 100px;
+  --r-full: 9999px;
+
+  /* Spacing */
+  --sp-xs:  4px;
+  --sp-sm:  8px;
+  --sp-md:  12px;
+  --sp-lg:  16px;
+  --sp-xl:  20px;
+  --sp-xxl: 32px;
+  --sp-sec: 48px;
+
+  /* Motion */
+  --dur-instant: 80ms;
+  --dur-fast:    150ms;
+  --dur-base:    200ms;
+  --ease:        cubic-bezier(0.4, 0, 0.2, 1);
+}
