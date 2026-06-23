@@ -111,4 +111,28 @@ export type MacroSettings = {
   updated_at: string
 }
 
-export type Page = 'calculator' | 'orders' | 'notes' | 'settings'
+export type TransactionType = 'income' | 'expense'
+export type Brand = 'minime' | 'fantom' | 'general'
+export type Account = 'business' | 'main' | 'cash'
+
+export type Transaction = {
+  id: string
+  type: TransactionType
+  brand: Brand
+  account: Account
+  category: string
+  amount: number
+  note: string | null
+  date: string
+  created_by: string
+  created_at: string
+}
+
+export type FinanceCategory = {
+  id: string
+  type: TransactionType
+  name: string
+  color: string
+}
+
+export type Page = 'calculator' | 'orders' | 'notes' | 'finance' | 'settings'

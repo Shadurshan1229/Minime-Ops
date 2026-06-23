@@ -6,6 +6,7 @@ import Login from './pages/Login'
 import Calculator from './pages/Calculator'
 import Orders from './pages/Orders'
 import Notes from './pages/Notes'
+import Finance from './pages/Finance'
 import Settings from './pages/Settings'
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
       {activePage === 'calculator' && <Calculator />}
       {activePage === 'orders' && <Orders />}
       {activePage === 'notes' && <Notes />}
+      {activePage === 'finance' && <Finance />}
       {activePage === 'settings' && <Settings />}
     </Shell>
   )
