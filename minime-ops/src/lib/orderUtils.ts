@@ -44,8 +44,7 @@ export function getItemDisplayName(item: OrderItem, products: Product[]): string
 }
 
 export function getItemImage(item: OrderItem, products: Product[]): string | null {
-  if (item.product_id) {
-    return products.find(p => p.id === item.product_id)?.image_url ?? null
-  }
-  return item.custom_image_url
+  if (item.custom_image_url) return item.custom_image_url
+  if (item.product_id) return products.find(p => p.id === item.product_id)?.image_url ?? null
+  return null
 }
