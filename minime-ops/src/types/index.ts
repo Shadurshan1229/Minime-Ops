@@ -153,4 +153,4 @@ export type FinanceCategory = {
   color: string
 }
 
-export type Page = 'calculator' | 'orders' | 'notes' | 'finance' | 'settings'
+export type Page = 'dashboard' | 'calculator' | 'orders' | 'notes' | 'finance' | 'settings'

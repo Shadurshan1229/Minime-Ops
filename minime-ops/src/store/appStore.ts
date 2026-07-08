@@ -10,7 +10,7 @@ type AppStore = {
 }
 
 export const useAppStore = create<AppStore>((set) => ({
-  activePage: 'calculator',
+  activePage: 'dashboard',
   setActivePage: (page) => set({ activePage: page }),
   session: undefined,
   setSession: (session) => set({ session }),

@@ -1,14 +1,15 @@
 import { useState } from 'react'
-import { Calculator, Package, StickyNote, TrendingUp, LogOut, Menu, X, Settings } from 'lucide-react'
+import { LayoutDashboard, Calculator, Package, StickyNote, TrendingUp, LogOut, Menu, X, Settings } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAppStore } from '../../store/appStore'
 import type { Page } from '../../types'
 
 const ITEMS: { page: Page; label: string; Icon: React.ComponentType<{ size: number; strokeWidth: number }> }[] = [
-  { page: 'calculator', label: 'Calculator', Icon: Calculator },
+  { page: 'dashboard',  label: 'Home',       Icon: LayoutDashboard },
   { page: 'orders',     label: 'Orders',     Icon: Package },
-  { page: 'notes',      label: 'Notes',      Icon: StickyNote },
   { page: 'finance',    label: 'Finance',    Icon: TrendingUp },
+  { page: 'calculator', label: 'Calculator', Icon: Calculator },
+  { page: 'notes',      label: 'Notes',      Icon: StickyNote },
 ]
 
 export default function Nav() {

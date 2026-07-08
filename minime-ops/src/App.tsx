@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase'
 import { useAppStore } from './store/appStore'
 import Shell from './components/layout/Shell'
 import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
 import Calculator from './pages/Calculator'
 import Orders from './pages/Orders'
 import Notes from './pages/Notes'
@@ -29,11 +30,12 @@ export default function App() {
 
   return (
     <Shell>
+      {activePage === 'dashboard'  && <Dashboard />}
       {activePage === 'calculator' && <Calculator />}
-      {activePage === 'orders' && <Orders />}
-      {activePage === 'notes' && <Notes />}
-      {activePage === 'finance' && <Finance />}
-      {activePage === 'settings' && <Settings />}
+      {activePage === 'orders'     && <Orders />}
+      {activePage === 'notes'      && <Notes />}
+      {activePage === 'finance'    && <Finance />}
+      {activePage === 'settings'   && <Settings />}
     </Shell>
   )
 }
