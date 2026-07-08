@@ -25,6 +25,8 @@ export default function Finance() {
   const { transactions, categories, setTransactions, setCategories, period, setPeriod, brandFilter, setBrandFilter } = useFinanceStore()
   const [showAdd, setShowAdd] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [txType, setTxType] = useState<'all' | 'income' | 'expense'>('all')
+  const [txSort, setTxSort] = useState<'newest' | 'oldest' | 'amount_high' | 'amount_low'>('newest')
 
   useEffect(() => {
     Promise.all([
@@ -206,18 +208,71 @@ export default function Finance() {
 
           {/* Transaction list */}
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ink-m)', marginBottom: 'var(--sp-md)' }}>
-              Transactions
+            {/* List controls */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-md)', flexWrap: 'wrap', gap: 'var(--sp-sm)' }}>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {(['all', 'income', 'expense'] as const).map(t => {
+                  const labels = { all: 'All', income: 'Income', expense: 'Expenses' }
+                  const active = txType === t
+                  return (
+                    <button key={t} onClick={() => setTxType(t)} style={{
+                      padding: '5px 12px', borderRadius: 'var(--r-pill)',
+                      border: '1px solid var(--hairline)',
+                      fontFamily: 'Inter, sans-serif', fontSize: '12px', fontWeight: 500,
+                      cursor: 'pointer',
+                      background: active ? 'var(--s2)' : 'transparent',
+                      color: active
+                        ? t === 'income' ? 'var(--status-printing-text)'
+                          : t === 'expense' ? 'var(--red)'
+                          : 'var(--ink)'
+                        : 'var(--ink-m)',
+                      transition: 'all var(--dur-fast) var(--ease)',
+                    }}>
+                      {labels[t]}
+                    </button>
+                  )
+                })}
+              </div>
+              <select
+                value={txSort}
+                onChange={e => setTxSort(e.target.value as typeof txSort)}
+                style={{
+                  padding: '5px 10px', background: 'var(--s1)', color: 'var(--ink-m)',
+                  border: '1px solid var(--hairline)', borderRadius: 'var(--r-pill)',
+                  fontFamily: 'Inter, sans-serif', fontSize: '12px',
+                  outline: 'none', cursor: 'pointer', appearance: 'none',
+                }}
+              >
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="amount_high">Amount: high → low</option>
+                <option value="amount_low">Amount: low → high</option>
+              </select>
             </div>
+
             {loading && <div style={{ fontSize: '13px', color: 'var(--ink-m)' }}>Loading...</div>}
-            {!loading && viewTx.length === 0 && (
+            {!loading && viewTx.length === 0 && txType === 'all' && (
               <div style={{ fontSize: '13px', color: 'var(--ink-m)', textAlign: 'center', padding: 'var(--sp-xxl) 0' }}>
                 No transactions for this period
               </div>
             )}
             <div>
-              {viewTx.map(t => <TransactionRow key={t.id} t={t} />)}
+              {(() => {
+                const typed = txType === 'all' ? viewTx : viewTx.filter(t => t.type === txType)
+                const sorted = [...typed].sort((a, b) => {
+                  if (txSort === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime()
+                  if (txSort === 'amount_high') return b.amount - a.amount
+                  if (txSort === 'amount_low') return a.amount - b.amount
+                  return new Date(b.date).getTime() - new Date(a.date).getTime()
+                })
+                return sorted.map(t => <TransactionRow key={t.id} t={t} />)
+              })()}
             </div>
+            {!loading && txType !== 'all' && viewTx.filter(t => t.type === txType).length === 0 && (
+              <div style={{ fontSize: '13px', color: 'var(--ink-m)', textAlign: 'center', padding: 'var(--sp-xxl) 0' }}>
+                No {txType === 'income' ? 'income' : 'expenses'} for this period
+              </div>
+            )}
           </div>
 
         </div>

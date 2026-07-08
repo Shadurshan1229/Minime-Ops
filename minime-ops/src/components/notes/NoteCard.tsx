@@ -65,7 +65,7 @@ export default function NoteCard({ note, onClick }: Props) {
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
         }}>
-          {note.body}
+          {note.body.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '')}
         </div>
       )}
 

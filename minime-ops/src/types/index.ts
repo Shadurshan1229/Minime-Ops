@@ -39,37 +39,55 @@ export type PrintRecord = {
   created_at: string
 }
 
-export type OrderType = 'standard' | 'custom'
+export type OrderStatus = 'new' | 'confirmed' | 'in_progress' | 'ready' | 'delivered' | 'cancelled'
+export type PaymentType = 'full' | 'deposit'
 
-export type OrderStatus =
-  | 'pending'
-  | 'quoted'
-  | 'printing'
-  | 'ready'
-  | 'delivered'
-  | 'cancelled'
+export type Addon = {
+  name: string
+  price: number
+}
 
 export type OrderItem = {
-  name: string
+  id: string
+  order_id: string
+  product_id: string | null
+  custom_name: string | null
+  custom_image_url: string | null
   quantity: number
-  unit_price: number | null
+  unit_price: number
+  addons: Addon[]
+  created_at: string
 }
 
 export type Order = {
   id: string
-  type: OrderType
-  status: OrderStatus
+  order_number: number
   customer_name: string
   customer_contact: string | null
-  items: OrderItem[]
-  brief: string | null
-  print_record_id: string | null
-  quoted_price: number | null
-  final_price: number | null
+  brand: Brand
+  status: OrderStatus
+  due_date: string | null
+  discount_pct: number
+  payment_type: PaymentType
+  amount_paid: number
   notes: string | null
+  pinned: boolean
   created_by: string
   created_at: string
   updated_at: string
+  items?: OrderItem[]
+}
+
+export type Product = {
+  id: string
+  name: string
+  description: string | null
+  base_price: number
+  production_days: number
+  image_url: string | null
+  brand: Brand
+  active: boolean
+  created_at: string
 }
 
 export type Note = {

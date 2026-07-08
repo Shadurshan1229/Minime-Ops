@@ -5,12 +5,12 @@ type StatusPillProps = {
 }
 
 const STATUS_CONFIG: Record<OrderStatus, { bg: string; color: string; label: string }> = {
-  pending:   { bg: 'var(--status-pending-bg)',  color: 'var(--status-pending-text)',  label: 'Pending' },
-  printing:  { bg: 'var(--status-printing-bg)', color: 'var(--status-printing-text)', label: 'Printing' },
-  ready:     { bg: 'var(--status-ready-bg)',    color: 'var(--status-ready-text)',    label: 'Ready' },
-  quoted:    { bg: 'var(--s2)',                 color: 'var(--ink-m)',                label: 'Quoted' },
-  delivered: { bg: 'var(--red-dim)',            color: 'var(--red)',                  label: 'Delivered' },
-  cancelled: { bg: 'var(--s2)',                 color: 'var(--ink-m)',                label: 'Cancelled' },
+  new:         { bg: '#1A1A0E',                 color: '#C9A05A',                     label: 'New' },
+  confirmed:   { bg: 'var(--status-printing-bg)', color: 'var(--status-printing-text)', label: 'Confirmed' },
+  in_progress: { bg: '#0E1020',                 color: '#8B9FD4',                     label: 'In Progress' },
+  ready:       { bg: 'var(--status-ready-bg)',  color: 'var(--status-ready-text)',    label: 'Ready' },
+  delivered:   { bg: 'var(--red-dim)',           color: 'var(--red)',                  label: 'Delivered' },
+  cancelled:   { bg: 'var(--s2)',               color: 'var(--ink-m)',                label: 'Cancelled' },
 }
 
 export default function StatusPill({ status }: StatusPillProps) {
