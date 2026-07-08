@@ -290,83 +290,79 @@ export default function NewOrderModal({ onClose }: Props) {
                 </select>
 
                 {!item.product_id && (
-                  <>
-                    <Input label="Custom product name" value={item.custom_name}
-                      placeholder="e.g. Custom Diorama - Office Scene"
-                      onChange={e => setItem(idx, { custom_name: e.target.value })} />
+                  <Input label="Custom product name" value={item.custom_name}
+                    placeholder="e.g. Custom Diorama - Office Scene"
+                    onChange={e => setItem(idx, { custom_name: e.target.value })} />
+                )}
 
-                    {/* Image upload */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-xs)' }}>
-                      <div style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ink-m)' }}>
-                        Reference image (optional)
-                      </div>
-                      {item.custom_image_url ? (
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--sp-sm)' }}>
-                          <div style={{ position: 'relative', borderRadius: 'var(--r-md)', overflow: 'hidden', width: '80px', height: '80px', flexShrink: 0 }}>
-                            <img src={item.custom_image_url} alt="preview"
-                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                            <button
-                              onClick={() => setItem(idx, { custom_image_url: '' })}
-                              style={{
-                                position: 'absolute', top: 3, right: 3,
-                                background: 'rgba(0,0,0,0.75)', border: 'none',
-                                borderRadius: 'var(--r-full)',
-                                width: '20px', height: '20px',
-                                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              }}
-                            >
-                              <X size={10} strokeWidth={2.5} color="#fff" />
-                            </button>
+                {/* Image — upload for both catalog and custom items */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-xs)' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ink-m)' }}>
+                    {item.product_id ? 'Reference photo (optional)' : 'Reference image (optional)'}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--sp-sm)' }}>
+                    {/* Catalog default image (shown when no custom upload yet) */}
+                    {item.product_id && !item.custom_image_url && (() => {
+                      const productImg = products.find(p => p.id === item.product_id)?.image_url
+                      return productImg ? (
+                        <div style={{ position: 'relative', borderRadius: 'var(--r-md)', overflow: 'hidden', width: '80px', height: '80px', flexShrink: 0 }}>
+                          <img src={productImg} alt="catalog"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                          <div style={{ position: 'absolute', bottom: 0, insetInline: 0, background: 'rgba(0,0,0,0.55)', fontSize: '9px', color: '#fff', textAlign: 'center', padding: '2px 0' }}>
+                            default
                           </div>
-                          <button
-                            onClick={() => fileRefs.current[idx]?.click()}
-                            style={{
-                              background: 'none', border: '1px dashed var(--hairline)',
-                              borderRadius: 'var(--r-md)', padding: '6px 10px',
-                              color: 'var(--ink-m)', fontSize: '12px', cursor: 'pointer',
-                            }}
-                          >
-                            Replace
-                          </button>
                         </div>
-                      ) : (
+                      ) : null
+                    })()}
+
+                    {/* Uploaded image preview */}
+                    {item.custom_image_url && (
+                      <div style={{ position: 'relative', borderRadius: 'var(--r-md)', overflow: 'hidden', width: '80px', height: '80px', flexShrink: 0 }}>
+                        <img src={item.custom_image_url} alt="preview"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                         <button
-                          onClick={() => fileRefs.current[idx]?.click()}
-                          disabled={uploadingIdx === idx}
+                          onClick={() => setItem(idx, { custom_image_url: '' })}
                           style={{
-                            width: '80px', height: '80px',
-                            border: '1px dashed var(--hairline)',
-                            borderRadius: 'var(--r-md)', background: 'var(--s2)',
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            gap: '4px', cursor: 'pointer', color: 'var(--ink-m)',
+                            position: 'absolute', top: 3, right: 3,
+                            background: 'rgba(0,0,0,0.75)', border: 'none',
+                            borderRadius: 'var(--r-full)',
+                            width: '20px', height: '20px',
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                           }}
                         >
-                          {uploadingIdx === idx
-                            ? <Loader size={18} strokeWidth={1.5} style={{ animation: 'spin 1s linear infinite' }} />
-                            : <><ImagePlus size={18} strokeWidth={1.5} /><span style={{ fontSize: '10px' }}>Upload</span></>}
+                          <X size={10} strokeWidth={2.5} color="#fff" />
                         </button>
-                      )}
-                      <input
-                        type="file" accept="image/*"
-                        ref={el => { fileRefs.current[idx] = el }}
-                        style={{ display: 'none' }}
-                        onChange={e => {
-                          const file = e.target.files?.[0]
-                          if (file) handleImageUpload(idx, file)
-                          e.target.value = ''
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
+                      </div>
+                    )}
 
-                {item.product_id && products.find(p => p.id === item.product_id)?.image_url && (
-                  <img
-                    src={products.find(p => p.id === item.product_id)!.image_url!}
-                    alt="product"
-                    style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: 'var(--r-md)' }}
+                    {/* Upload / replace button */}
+                    <button
+                      onClick={() => fileRefs.current[idx]?.click()}
+                      disabled={uploadingIdx === idx}
+                      style={{
+                        width: '80px', height: '80px',
+                        border: '1px dashed var(--hairline)',
+                        borderRadius: 'var(--r-md)', background: 'var(--s2)',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        gap: '4px', cursor: 'pointer', color: 'var(--ink-m)', flexShrink: 0,
+                      }}
+                    >
+                      {uploadingIdx === idx
+                        ? <Loader size={18} strokeWidth={1.5} style={{ animation: 'spin 1s linear infinite' }} />
+                        : <><ImagePlus size={18} strokeWidth={1.5} /><span style={{ fontSize: '10px' }}>{item.custom_image_url ? 'Replace' : 'Upload'}</span></>}
+                    </button>
+                  </div>
+                  <input
+                    type="file" accept="image/*"
+                    ref={el => { fileRefs.current[idx] = el }}
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) handleImageUpload(idx, file)
+                      e.target.value = ''
+                    }}
                   />
-                )}
+                </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-sm)' }}>
                   <Input label="Quantity" type="number" min={1} value={item.quantity}
