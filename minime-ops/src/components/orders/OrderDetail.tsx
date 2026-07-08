@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useOrdersStore } from '../../store/ordersStore'
 import type { Order, OrderStatus } from '../../types'
@@ -8,7 +8,7 @@ import {
 } from '../../lib/orderUtils'
 import Button from '../ui/Button'
 import Input from '../ui/Input'
-import { X, Copy, Check, CreditCard, Trash2, Pencil } from 'lucide-react'
+import { X, Copy, Check, CreditCard, Trash2, Pencil, ImagePlus, Loader } from 'lucide-react'
 
 const STATUS_FLOW: OrderStatus[] = ['new', 'confirmed', 'in_progress', 'ready', 'delivered']
 
@@ -37,6 +37,8 @@ export default function OrderDetail({ order, onClose }: Props) {
   const [savingDiscount, setSavingDiscount] = useState(false)
   const [mutError, setMutError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [uploadingItemIdx, setUploadingItemIdx] = useState<number | null>(null)
+  const itemFileRefs = useRef<(HTMLInputElement | null)[]>([])
   // Customer edit state
   const [editingCustomer, setEditingCustomer] = useState(false)
   const [editName, setEditName] = useState(order.customer_name)
@@ -99,6 +101,41 @@ export default function OrderDetail({ order, onClose }: Props) {
     if (error) { setMutError('Failed to delete order'); setDeleting(false); return }
     removeOrder(order.id)
     onClose()
+  }
+
+  async function uploadItemImage(itemIdx: number, file: File) {
+    setUploadingItemIdx(itemIdx)
+    const ext = file.name.split('.').pop() ?? 'jpg'
+    const path = `orders/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+    const { error: uploadErr } = await supabase.storage
+      .from('order-images')
+      .upload(path, file, { contentType: file.type })
+    if (uploadErr) { setUploadingItemIdx(null); setMutError('Image upload failed'); return }
+    const { data: { publicUrl } } = supabase.storage.from('order-images').getPublicUrl(path)
+
+    const item = items[itemIdx]
+    const { error } = await supabase.from('order_items')
+      .update({ custom_image_url: publicUrl })
+      .eq('id', item.id)
+    if (error) { setUploadingItemIdx(null); setMutError('Failed to save image'); return }
+
+    const updatedItems = items.map((it, i) =>
+      i === itemIdx ? { ...it, custom_image_url: publicUrl } : it
+    )
+    updateOrder(order.id, { items: updatedItems })
+    setUploadingItemIdx(null)
+  }
+
+  async function removeItemImage(itemIdx: number) {
+    const item = items[itemIdx]
+    const { error } = await supabase.from('order_items')
+      .update({ custom_image_url: null })
+      .eq('id', item.id)
+    if (error) { setMutError('Failed to remove image'); return }
+    const updatedItems = items.map((it, i) =>
+      i === itemIdx ? { ...it, custom_image_url: '' } : it
+    )
+    updateOrder(order.id, { items: updatedItems })
   }
 
   async function saveCustomer() {
@@ -269,9 +306,61 @@ export default function OrderDetail({ order, onClose }: Props) {
             const img = getItemImage(item, products)
             const addonsTotal = item.addons.reduce((s, a) => s + a.price, 0)
             const lineTotal = (item.unit_price + addonsTotal) * item.quantity
+            const isUploading = uploadingItemIdx === i
             return (
               <div key={i} style={{ background: 'var(--s1)', border: '1px solid var(--hairline-s)', borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
-                {img && <img src={img} alt={name} style={{ width: '100%', height: '160px', objectFit: 'cover', display: 'block' }} />}
+                {/* Image area with upload overlay */}
+                <div style={{ position: 'relative', width: '100%', height: '160px', background: 'var(--s2)' }}>
+                  {img
+                    ? <img src={img} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', opacity: 0.15 }}>📦</div>
+                  }
+                  {/* Upload / remove overlay */}
+                  <div style={{
+                    position: 'absolute', bottom: 8, right: 8,
+                    display: 'flex', gap: '6px', alignItems: 'center',
+                  }}>
+                    {item.custom_image_url && (
+                      <button
+                        onClick={() => removeItemImage(i)}
+                        style={{
+                          background: 'rgba(0,0,0,0.7)', border: 'none', borderRadius: 'var(--r-full)',
+                          width: '30px', height: '30px', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}
+                        title="Remove image"
+                      >
+                        <X size={13} strokeWidth={2} color="#fff" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => itemFileRefs.current[i]?.click()}
+                      disabled={isUploading}
+                      style={{
+                        background: 'rgba(0,0,0,0.7)', border: 'none', borderRadius: 'var(--r-pill)',
+                        padding: '6px 10px', cursor: isUploading ? 'default' : 'pointer',
+                        display: 'flex', alignItems: 'center', gap: '5px',
+                        fontSize: '11px', fontWeight: 500, color: '#fff',
+                      }}
+                      title={img ? 'Replace image' : 'Upload image'}
+                    >
+                      {isUploading
+                        ? <Loader size={13} strokeWidth={1.5} style={{ animation: 'spin 1s linear infinite' }} />
+                        : <ImagePlus size={13} strokeWidth={1.5} />}
+                      {isUploading ? 'Uploading…' : img ? 'Replace' : 'Upload'}
+                    </button>
+                  </div>
+                  <input
+                    type="file" accept="image/*"
+                    ref={el => { itemFileRefs.current[i] = el }}
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) uploadItemImage(i, file)
+                      e.target.value = ''
+                    }}
+                  />
+                </div>
                 <div style={{ padding: 'var(--sp-md)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontFamily: 'Geist, sans-serif', fontSize: '14px', fontWeight: 600, color: 'var(--ink)' }}>{name}</span>
